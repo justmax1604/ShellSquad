@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "827297379631",
+    "firebase_url": "https://shellhacks-e4f52.firebaseio.com",
+    "project_id": "shellhacks-e4f52",
+    "storage_bucket": "shellhacks-e4f52.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:827297379631:android:7d2bda07c52bbbb96a9dda",
+        "android_client_info": {
+          "package_name": "app.example.shellhacks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "827297379631-2f6rm2cmhchivb5hmqqja45l2lq6m7eu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.example.shellhacks",
+            "certificate_hash": "2f23d86e6518b27cb3892a63b0920b59ade347f1"
+          }
+        },
+        {
+          "client_id": "827297379631-k6c7ngv9k6brgnmf1lmtfa49tpeckq0b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB84lFpbKIPOG2CDJ3dl4m3xV8u41ME-Po"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "827297379631-k6c7ngv9k6brgnmf1lmtfa49tpeckq0b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
