@@ -28,6 +28,8 @@ public class CameraFragment extends Fragment {
 
     protected ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
     protected PreviewView mPreviewView;
+    protected Preview mPreview;
+    protected CameraSelector mCameraSelector;
 
     private final int CAMERA_PERM = 15;
 
@@ -60,15 +62,15 @@ public class CameraFragment extends Fragment {
     }
 
     private void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
-        Preview preview = new Preview.Builder().build();
+        mPreview = new Preview.Builder().build();
 
-        CameraSelector cameraSelector = new CameraSelector.Builder()
+        mCameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
                 .build();
 
-        preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+        mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
 
-        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, cameraSelector, preview);
+        Camera camera = cameraProvider.bindToLifecycle((LifecycleOwner)this, mCameraSelector, mPreview);
     }
 
     private boolean allPermissionsGranted() {
