@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ShellHacks</string>
+    <string name="add_item_title">Add New Item</string>
+    <string name="barcode_page_title">Scan Barcode</string>
+    <string name="barcode_instructions">Begin by scanning the barcode of your item. If your item does not have a barcode press manual.</string>
 </resources>
