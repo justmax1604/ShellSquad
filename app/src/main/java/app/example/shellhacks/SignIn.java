@@ -28,6 +28,8 @@ public class SignIn extends AppCompatActivity{
         setContentView(R.layout.signin);
         signInButton = findViewById(R.id.sign_in_button);
 
+        Log.d("Signin", "Client ID: " + getString(R.string.default_web_client_id));
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -72,8 +74,8 @@ public class SignIn extends AppCompatActivity{
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w("Google Sign In Error", "signInResult:failed code=" + e.getStatusCode());
-            Toast.makeText(SignIn.this, "Failed", Toast.LENGTH_LONG).show();
+            Log.e("Google Sign In Error", "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(SignIn.this, "Failed Error Code: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
         }
     }
 
