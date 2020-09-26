@@ -28,6 +28,8 @@ public class SignIn extends AppCompatActivity {
         Log.e("I see", "onCreate: ");
         signInButton = findViewById(R.id.sign_in_button);
 
+        Log.d("Signin", "Client ID: " + getString(R.string.default_web_client_id));
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -64,14 +66,14 @@ public class SignIn extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            Log.e("SignIn", "Singed In successfully");
+            Log.d("SignIn", "Singed In successfully");
             // Signed in successfully, show authenticated UI.
             startActivity(new Intent(SignIn.this, MainActivity.class));
         } catch (ApiException e) {
             // The ApiException status code indicates the detailed failure reason.
             // Please refer to the GoogleSignInStatusCodes class reference for more information.
-            Log.w("Google Sign In Error", "signInResult:failed code=" + e.getStatusCode());
-            Toast.makeText(SignIn.this, "Failed", Toast.LENGTH_LONG).show();
+            Log.e("Google Sign In Error", "signInResult:failed code=" + e.getStatusCode());
+            Toast.makeText(SignIn.this, "Failed Error Code: " + e.getStatusCode(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -81,7 +83,7 @@ public class SignIn extends AppCompatActivity {
         // the GoogleSignInAccount will be non-null.
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if(account != null) {
-            Log.e("SignIn", "Singed In successfully2");
+            Log.e("SignIn", "Singed In successfully");
             startActivity(new Intent(SignIn.this, MainActivity.class));
         }
         Log.e("SignIn", "Is Null");

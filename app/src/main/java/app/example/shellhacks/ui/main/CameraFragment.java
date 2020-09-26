@@ -7,7 +7,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -17,12 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 import app.example.shellhacks.R;
@@ -38,19 +35,9 @@ public class CameraFragment extends Fragment {
         return new CameraFragment();
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
-
-        return inflater.inflate(R.layout.main_fragment, container, false);
-    }
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        mPreviewView = (PreviewView)getView().findViewById(R.id.view_finder);
 
         if (allPermissionsGranted()) {
             startCamera();
@@ -61,12 +48,12 @@ public class CameraFragment extends Fragment {
     }
 
     private void startCamera() {
-        cameraProviderFuture = ProcessCameraProvider.getInstance(getContext());
+        cameraProviderFuture = ProcessCameraProvider.getInstance(Objects.requireNonNull(getContext()));
         cameraProviderFuture.addListener(() -> {
             try {
                 ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
                 bindPreview(cameraProvider);
-            } catch (ExecutionException | InterruptedException e) {
+            } catch (ExecutionException | InterruptedException ignored) {
 
             }
         }, ContextCompat.getMainExecutor(this.getContext()));
@@ -85,17 +72,16 @@ public class CameraFragment extends Fragment {
     }
 
     private boolean allPermissionsGranted() {
-        return ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+        return ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case CAMERA_PERM:
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == CAMERA_PERM) {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     startCamera();
                 } else {
-                    // TODO: Handle the user denying the camera probably with a snackbar
+                    Snackbar.make(getView(), R.string.camera_permissions_denied, Snackbar.LENGTH_SHORT);
                 }
         }
     }

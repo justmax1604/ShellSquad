@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
+import app.example.shellhacks.ui.main.BarcodeScanFragment;
 import app.example.shellhacks.ui.main.CameraFragment;
 
 public class BarcodeScan extends AppCompatActivity {
@@ -14,7 +15,7 @@ public class BarcodeScan extends AppCompatActivity {
         setContentView(R.layout.barcode_scan_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, CameraFragment.newInstance())
+                    .replace(R.id.container, BarcodeScanFragment.newInstance())
                     .commitNow();
         }
     }
