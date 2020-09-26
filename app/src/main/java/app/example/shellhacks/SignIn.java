@@ -17,15 +17,15 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
 
-public class SignIn extends AppCompatActivity {
+public class SignIn extends AppCompatActivity{
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.signin);
-        Log.e("I see", "onCreate: ");
         signInButton = findViewById(R.id.sign_in_button);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -64,7 +64,9 @@ public class SignIn extends AppCompatActivity {
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            Log.e("SignIn", "Singed In successfully");
+            Log.d("SignIn", "Singed In successfully");
+            Log.d("SignIn", "firebaseAuthWithGoogle:" + account.getId());
+            userData.getInstance().userId = account.getId();
             // Signed in successfully, show authenticated UI.
             startActivity(new Intent(SignIn.this, MainActivity.class));
         } catch (ApiException e) {
@@ -79,13 +81,19 @@ public class SignIn extends AppCompatActivity {
     protected void onStart() {
         // Check for existing Google Sign In account, if the user is already signed in
         // the GoogleSignInAccount will be non-null.
+
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
         if(account != null) {
-            Log.e("SignIn", "Singed In successfully2");
+            Log.d("SignIn", "firebaseAuthWithGoogle:" + account.getId()); // 108768014883478741352
+            userData.getInstance().userId = account.getId();
             startActivity(new Intent(SignIn.this, MainActivity.class));
+            super.onStart();
         }
-        Log.e("SignIn", "Is Null");
-        super.onStart();
+        else{
+            Log.e("SignIn", "Is Null");
+            super.onStart();
+        }
+
     }
 }
 
