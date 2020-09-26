@@ -16,11 +16,12 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SignIn extends AppCompatActivity{
     SignInButton signInButton;
     GoogleSignInClient mGoogleSignInClient;
-
+    String firebaseUserItemsCollectionName = "userItems";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,6 +70,8 @@ public class SignIn extends AppCompatActivity{
             Log.d("SignIn", "Singed In successfully");
             Log.d("SignIn", "firebaseAuthWithGoogle:" + account.getId());
             userData.getInstance().userId = account.getId();
+            dataBase.getInstance().db = FirebaseFirestore.getInstance();
+            dataBase.getInstance().userItems = dataBase.getInstance().db.collection(firebaseUserItemsCollectionName);
             // Signed in successfully, show authenticated UI.
             startActivity(new Intent(SignIn.this, MainActivity.class));
         } catch (ApiException e) {
@@ -88,6 +91,8 @@ public class SignIn extends AppCompatActivity{
         if(account != null) {
             Log.d("SignIn", "firebaseAuthWithGoogle:" + account.getId()); // 108768014883478741352
             userData.getInstance().userId = account.getId();
+            dataBase.getInstance().db = FirebaseFirestore.getInstance();
+            dataBase.getInstance().userItems = dataBase.getInstance().db.collection(firebaseUserItemsCollectionName);
             startActivity(new Intent(SignIn.this, MainActivity.class));
             super.onStart();
         }
