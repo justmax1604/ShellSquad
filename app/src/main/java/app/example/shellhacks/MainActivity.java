@@ -1,5 +1,6 @@
 package app.example.shellhacks;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -12,6 +13,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.apache.commons.io.FileUtils;
 
@@ -29,7 +35,8 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
     EditText edItem;
     RecyclerView rvItems;
     ItemsAdapter itemsAdapter;
-
+    String TAG = "MainActivity";
+    String userIdInFireStore = "user_id";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +46,21 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
         edItem = findViewById(R.id.edItem);
         rvItems = findViewById(R.id.rvItems);
 
+        dataBase.getInstance().userItems
+                .whereEqualTo(userIdInFireStore, userData.getInstance().userId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Log.e(TAG, document.getId() + " => " + document.getData());
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting documents.", task.getException());
+                        }
+                    }
+                });
         loadItems();
 
 
