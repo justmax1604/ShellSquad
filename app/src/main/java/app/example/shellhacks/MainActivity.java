@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +19,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 
 import org.apache.commons.io.FileUtils;
 
@@ -27,6 +30,9 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import app.example.shellhacks.ui.main.BarcodeScanFragment;
+import app.example.shellhacks.ui.main.CameraFragment;
+
 public class MainActivity extends AppCompatActivity implements EditDialog.EditItemDialogListener {
 
     List<String> items;
@@ -35,8 +41,10 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
     EditText edItem;
     RecyclerView rvItems;
     ItemsAdapter itemsAdapter;
+    FloatingActionButton floatingAddButton;
     String TAG = "MainActivity";
     String userIdInFireStore = "user_id";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +114,17 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
                 saveItems();
             }
         });
+
+        floatingAddButton = (FloatingActionButton)findViewById(R.id.floatingAddButton);
+        floatingAddButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, BarcodeScan.class);
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
+            }
+        });
+
+
     }
 
     private File getDataFile() {
