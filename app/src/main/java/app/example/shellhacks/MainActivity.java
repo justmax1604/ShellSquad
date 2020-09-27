@@ -1,8 +1,16 @@
 package app.example.shellhacks;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,12 +25,28 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.SetOptions;
 
+
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+import app.example.shellhacks.ui.main.BarcodeScanFragment;
+import app.example.shellhacks.ui.main.CameraFragment;
+
+public class MainActivity extends AppCompatActivity implements EditDialog.EditItemDialogListener {
 
     List<String> items;
 
@@ -37,6 +61,9 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference collectionReference = db.collection("userItems");
 
+    public static final String KEY_ITEM_NAME = "item_name";
+    public static final String KEY_EXP_DATE = "expiration_date";
+
     private FoodItemAdapter foodItemAdapter;
 
     @Override
@@ -49,55 +76,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         setUpRecyclerView();
-        /***
-        dataBase.getInstance().userItems
-                .whereEqualTo(userIdInFireStore, userData.getInstance().userId)
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Log.e(TAG, document.getId() + " => " + document.getData());
-                            }
-                        } else {
-                            Log.w(TAG, "Error getting documents.", task.getException());
-                        }
-                    }
-                });
-        loadItems();
 
-
-        ItemsAdapter.OnLongClickListener onLongClickListener = new ItemsAdapter.OnLongClickListener() {
-
-            @Override
-            public void onItemLongClicked(int position) {
-                // Delete the item from the model
-                items.remove(position);
-                // Notify the adapter
-                itemsAdapter.notifyItemRemoved(position);
-                Toast.makeText(getApplicationContext(), "Item was removed", Toast.LENGTH_SHORT).show();
-                saveItems();
-            }
-        };
-        ItemsAdapter.OnClickListener onClickListener = new ItemsAdapter.OnClickListener(){
-
-            @Override
-            public void onItemClicked(int position) {
-                Log.d("Main Activity", "Single click");
-                EditDialog dialogFragment = new EditDialog();
-                Bundle bundle = new Bundle();
-                bundle.putString("item_text",items.get(position));
-                bundle.putInt("item_position",position);
-                dialogFragment.setArguments(bundle);
-                dialogFragment.show(getSupportFragmentManager(),"Item Dialog");
-            }
-        };
-        itemsAdapter = new ItemsAdapter(items, onLongClickListener,onClickListener);
-        rvItems.setAdapter(itemsAdapter);
-        rvItems.setLayoutManager(new LinearLayoutManager(this));
-
-        ***/
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -105,14 +84,6 @@ public class MainActivity extends AppCompatActivity {
                 // Add item to the model
                 saveFoodItem();
 
-            }
-        });
-        floatingAddButton = (FloatingActionButton)findViewById(R.id.floatingAddButton);
-        floatingAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, BarcodeScan.class);
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle());
             }
         });
 
@@ -125,11 +96,11 @@ public class MainActivity extends AppCompatActivity {
         edItem.getText().clear();
         Toast.makeText(getApplicationContext(), "Item was added", Toast.LENGTH_SHORT).show();
 
+
     }
 
-    // TODO: Change the query to only find foods for the logged in user
     private void setUpRecyclerView() {
-        Query query = collectionReference.orderBy("item_name", Query.Direction.DESCENDING);
+        Query query = collectionReference.orderBy("expiration_date", Query.Direction.DESCENDING);
         FirestoreRecyclerOptions<FoodItem> options = new FirestoreRecyclerOptions.Builder<FoodItem>()
                 .setQuery(query,FoodItem.class)
                 .build();
@@ -154,7 +125,26 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }).attachToRecyclerView(rvItems);
+
+        foodItemAdapter.setOnItemClickListener(new FoodItemAdapter.onItemClickListener() {
+            @Override
+            public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
+                FoodItem foodItem = documentSnapshot.toObject(FoodItem.class);
+                String path = documentSnapshot.getReference().getPath();
+
+                Log.d("Main Activity", "Single click");
+                EditDialog dialogFragment = new EditDialog();
+                Bundle bundle = new Bundle();
+                bundle.putString("item_name",foodItem.getItem_name());
+                bundle.putString("expiration_date",foodItem.getExpiration_date());
+                bundle.putString("path",path);
+                dialogFragment.setArguments(bundle);
+                dialogFragment.show(getSupportFragmentManager(),"Item Dialog");
+            }
+        });
     }
+
+
 
     @Override
     protected void onStart() {
@@ -167,40 +157,21 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         foodItemAdapter.stopListening();
     }
-    /***
-    private File getDataFile() {
-        return new File(getFilesDir(), "data.txt");
-    }
-
-    // this function will load items by reloading every line of the data file
-    private void loadItems() {
-        try {
-            items = new ArrayList<>(FileUtils.readLines(getDataFile(), Charset.defaultCharset()));
-        } catch (IOException e) {
-            Log.e("MainActivity", "Error reading items", e);
-            items = new ArrayList<>();
-        }
-
-    }
-
-    private void saveItems() {
-        try {
-            FileUtils.writeLines(getDataFile(),items);
-        } catch (IOException e) {
-            Log.e("MainActivity", "Error writing items", e);
-        }
-    }
 
     // to handle the result of edit activity
     @Override
-    public void onFinishEditDialog(String item_txt,int position) {
+    public void onFinishEditDialog(String item_name, String expiration_date, String path) {
         //update the model at the right position with new item text
-        items.set(position,item_txt);
-        //notify the adapter
-        itemsAdapter.notifyItemChanged(position);
-        //persist the changes
-        saveItems();
+        Toast.makeText(getApplicationContext(), path, Toast.LENGTH_SHORT ).show();
+        String documentP = (path.split("/",2))[1];
+        if (!item_name.trim().isEmpty()) {
+            collectionReference.document(documentP).update(KEY_ITEM_NAME,item_name);
+        }
+        if (!expiration_date.trim().isEmpty()) {
+            collectionReference.document(documentP).update(KEY_EXP_DATE,expiration_date);
+        }
+
         Toast.makeText(getApplicationContext(), "Item updated successfully", Toast.LENGTH_SHORT ).show();
     }
-    ***/
+
 }
