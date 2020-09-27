@@ -21,6 +21,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -64,9 +65,29 @@ public class BarcodeScanFragment extends Fragment {
                     Snackbar.make(getView(), "The barcode has been selected", Snackbar.LENGTH_LONG)
                         .show();
                     cameraExecutor.shutdown();
+
+                    Fragment fragment = new DateScanFragment(output);
+                    FragmentManager fManager = getActivity().getSupportFragmentManager();
+                    fManager.beginTransaction()
+                            .setCustomAnimations(
+                                    R.anim.slide_in,
+                                    R.anim.fade_out,
+                                    R.anim.fade_in,
+                                    R.anim.slide_out
+                            )
+                            .addSharedElement(getView().findViewById(R.id.title), "newItemTitle")
+                            .replace(R.id.container, fragment)
+                            .addToBackStack(null)
+                            .commit();
                 })
                 .setNegativeButton("NO", (DialogInterface dialogInterface, int i) -> {
                     mCodeFound = false;
+                })
+                .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialogInterface) {
+                        mCodeFound = false;
+                    }
                 })
         .show();
     }
@@ -112,8 +133,6 @@ public class BarcodeScanFragment extends Fragment {
                         cameraSelector,
                         preview,
                         imageAnalysis);
-
-                camera.getCameraInfo();
 
                 preview.setSurfaceProvider(
                         mPreviewView.getSurfaceProvider()

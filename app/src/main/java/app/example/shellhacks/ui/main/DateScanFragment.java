@@ -1,0 +1,227 @@
+package app.example.shellhacks.ui.main;
+
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.media.Image;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.AspectRatio;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.camera.view.PreviewView;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.common.InputImage;
+import com.google.mlkit.vision.text.Text;
+import com.google.mlkit.vision.text.TextRecognition;
+import com.google.mlkit.vision.text.TextRecognizer;
+
+import java.util.Date;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import app.example.shellhacks.R;
+
+public class DateScanFragment extends Fragment {
+
+    private ExecutorService cameraExecutor;
+    private final int CAMERA_PERM = 15;
+    private PreviewView mPreviewView;
+    private ImageView mImageView;
+
+    private ImageCapture imageCapture;
+    private Button captureButton;
+    private Button manualButton;
+    private boolean mViewingPicture;
+
+    private String barcode;
+
+    public DateScanFragment(String barcode) {
+        this.barcode = barcode;
+    }
+
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.date_scan_fragment, container, false);
+    }
+
+    public void dateDialogReturned(long date) {
+        Date date_obj = new Date(date);
+        Log.d("Date Returned: ", date_obj.toLocaleString());
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, new ConfirmationFragment(barcode, date_obj))
+                .addToBackStack(null)
+                .commit();
+
+    }
+
+    public void dateDialogCancelled(long date) {
+
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mPreviewView = getView().findViewById(R.id.view_finder);
+        captureButton = getView().findViewById(R.id.scanDateButton);
+        mImageView = getView().findViewById(R.id.imageView);
+
+        manualButton = getView().findViewById(R.id.manual_entry);
+        manualButton.setOnClickListener((View v) -> {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            DateDialog newFragment = new DateDialog(this::dateDialogReturned, this::dateDialogCancelled);
+            newFragment.show(fragmentManager, "dialog");
+        });
+
+        captureButton.setOnClickListener((View v) -> {
+            if (mViewingPicture) {
+                mImageView.setVisibility(ImageView.INVISIBLE);
+                mPreviewView.setVisibility(PreviewView.VISIBLE);
+                captureButton.setText("SCAN");
+                mViewingPicture = false;
+                return;
+            }
+            mViewingPicture = true;
+            captureButton.setText("RETAKE");
+            mPreviewView.setVisibility(PreviewView.INVISIBLE);
+
+            imageCapture.takePicture(cameraExecutor, new ImageCapture.OnImageCapturedCallback() {
+                @Override
+                public void onCaptureSuccess(@NonNull ImageProxy imageProxy) {
+
+                    @SuppressLint("UnsafeExperimentalUsageError") Image mediaImage = imageProxy.getImage();
+                    if (mediaImage != null) {
+                        InputImage image =
+                                InputImage.fromMediaImage(mediaImage, imageProxy.getImageInfo().getRotationDegrees());
+                        Bitmap overlay = image.getBitmapInternal();
+
+                        TextRecognizer recognizer = TextRecognition.getClient();
+
+                        Task<Text> result = recognizer.process(image)
+                                .addOnSuccessListener((Text visionText) -> {
+                                    Paint paint = new Paint();
+                                    paint.setAntiAlias(true);
+                                    paint.setStyle(Paint.Style.STROKE);
+                                    paint.setColor(Color.RED);
+                                    paint.setStrokeWidth(10f);
+
+                                    Canvas canvas = new Canvas(overlay);
+
+                                    for (Text.TextBlock block : visionText.getTextBlocks()) {
+                                        for (Text.Line line : block.getLines()) {
+                                            for (Text.Element element : line.getElements()) {
+                                                Rect rect = element.getBoundingBox();
+                                                canvas.drawRect(rect, paint);
+                                                Log.d("String Found", element.getText());
+                                            }
+                                        }
+                                    }
+
+                                    mImageView.setImageBitmap(overlay);
+                                    mImageView.setVisibility(ImageView.VISIBLE);
+
+                                })
+                                .addOnFailureListener((Exception e) -> {
+
+                                })
+                                .addOnCompleteListener((Task<Text> visionText) -> {
+                                   imageProxy.close();
+                                });
+
+                    }
+                }
+            });
+        });
+
+        if (allPermissionsGranted()) {
+            startCamera();
+        } else {
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERM);
+        }
+    }
+
+    private void toConfirmationScreen(Date expDate) {
+
+    }
+
+    private void startCamera() {
+        ListenableFuture<ProcessCameraProvider> cameraProviderFuture
+                = ProcessCameraProvider.getInstance(getContext());
+
+        cameraProviderFuture.addListener(() -> {
+            try {
+                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+
+                Preview preview = new Preview.Builder().build();
+
+                cameraExecutor = Executors.newSingleThreadExecutor();
+
+                imageCapture = new ImageCapture.Builder()
+                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                        .build();
+
+                CameraSelector cameraSelector = new CameraSelector.Builder()
+                        .requireLensFacing(CameraSelector.LENS_FACING_BACK)
+                        .build();
+
+                Camera camera = cameraProvider.bindToLifecycle(
+                        ((LifecycleOwner) this),
+                        cameraSelector,
+                        preview,
+                        imageCapture);
+
+                preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+
+            } catch (ExecutionException | InterruptedException ignored) {
+
+            }
+        }, ContextCompat.getMainExecutor(getContext()));
+    }
+
+    private boolean allPermissionsGranted() {
+        return ContextCompat.checkSelfPermission(Objects.requireNonNull(getContext()), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == CAMERA_PERM) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startCamera();
+            } else {
+                Snackbar.make(getView(), R.string.camera_permissions_denied, Snackbar.LENGTH_SHORT);
+            }
+        } else {
+            Snackbar.make(getView(), R.string.camera_permissions_denied, Snackbar.LENGTH_SHORT).show();
+        }
+    }
+
+}
