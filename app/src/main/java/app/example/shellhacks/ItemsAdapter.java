@@ -5,10 +5,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.List;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.List;
 
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder>  {
 
@@ -67,19 +67,11 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         // Updates the view inside of the view holder with this data
         public void bind(String item) {
             tvItem.setText(item);
-            tvItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clickListener.onItemClicked(getAdapterPosition());
-                }
-            });
-            tvItem.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    // notify the listener which position was long pressed
-                    longClickListener.onItemLongClicked(getAdapterPosition());
-                    return true;
-                }
+            tvItem.setOnClickListener(v -> clickListener.onItemClicked(getAdapterPosition()));
+            tvItem.setOnLongClickListener(v -> {
+                // notify the listener which position was long pressed
+                longClickListener.onItemLongClicked(getAdapterPosition());
+                return true;
             });
         }
     }

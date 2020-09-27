@@ -2,16 +2,11 @@ package app.example.shellhacks;
 
 import android.annotation.SuppressLint;
 import android.media.Image;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.mlkit.vision.barcode.Barcode;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
@@ -52,30 +47,18 @@ public class BarcodeAnalyzer implements ImageAnalysis.Analyzer {
 
 
             Task<List<Barcode>> result = scanner.process(image)
-                    .addOnSuccessListener(new OnSuccessListener<List<Barcode>>() {
-                        @Override
-                        public void onSuccess(List<Barcode> barcodes) {
-                            if (barcodes.size() == 1) {
-                                Barcode barcode = barcodes.get(0);
-                                if (barcode.getValueType() == Barcode.TYPE_PRODUCT) {
-                                    mAfterFunction.actionAfterAnalysis(barcode.getRawValue());
-                                }
+                    .addOnSuccessListener(barcodes -> {
+                        if (barcodes.size() == 1) {
+                            Barcode barcode = barcodes.get(0);
+                            if (barcode.getValueType() == Barcode.TYPE_PRODUCT) {
+                                mAfterFunction.actionAfterAnalysis(barcode.getRawValue());
                             }
                         }
                     })
-                    .addOnFailureListener(new OnFailureListener() {
+                    .addOnFailureListener(e -> {
 
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-
-                        }
                     })
-                    .addOnCompleteListener(new OnCompleteListener<List<Barcode>>() {
-                        @Override
-                        public void onComplete(@NonNull Task<List<Barcode>> task) {
-                            imageProxy.close();
-                        }
-                    });
+                    .addOnCompleteListener(task -> imageProxy.close());
 
         }
     }

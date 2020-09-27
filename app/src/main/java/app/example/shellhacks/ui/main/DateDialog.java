@@ -41,9 +41,7 @@ public class DateDialog extends DialogFragment {
 
         date = new Date();
 
-        calendarView.setOnDateChangeListener((calendarView1, year, month, day) -> {
-            date = new Date(year - 1900, month, day);
-        });
+        calendarView.setOnDateChangeListener((calendarView1, year, month, day) -> date = new Date(year - 1900, month, day));
 
         confirmButton.setOnClickListener((View v) -> {
             onConfirm.onCompleted(date);

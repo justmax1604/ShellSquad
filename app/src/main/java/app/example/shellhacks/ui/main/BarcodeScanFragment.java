@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -30,8 +29,6 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -96,18 +93,9 @@ public class BarcodeScanFragment extends Fragment {
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Item Found!")
                 .setMessage("The barcode " + barcode + " was matched to " + name + ".\n Is this correct?")
-                .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> {
-                    goToDateScanner(name);
-                })
-                .setNegativeButton("NO", (DialogInterface dialogInterface, int i) -> {
-                    mCodeFound = false;
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialogInterface) {
-                        mCodeFound = false;
-                    }
-                })
+                .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> goToDateScanner(name))
+                .setNegativeButton("NO", (DialogInterface dialogInterface, int i) -> mCodeFound = false)
+                .setOnCancelListener(dialogInterface -> mCodeFound = false)
                 .show();
     }
 
@@ -130,33 +118,25 @@ public class BarcodeScanFragment extends Fragment {
 
         RequestQueue queue = Volley.newRequestQueue(getContext());
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("API", response);
-                        try {
-                            JSONObject json = new JSONObject(response);
-                            boolean success = (boolean)json.get("success");
-                            if (success) {
-                                String name = (String) json.get("title");
-                                showDialog(output, name);
-                            } else {
-                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                                ItemNameDialog dialog = new ItemNameDialog(BarcodeScanFragment.this::afterDialogConfirmed,
-                                        BarcodeScanFragment.this::cancelledNameDialog, ItemNameDialog.NEW_ITEM);
-                                dialog.show(fragmentManager, null);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                response -> {
+                    Log.d("API", response);
+                    try {
+                        JSONObject json = new JSONObject(response);
+                        boolean success = (boolean)json.get("success");
+                        if (success) {
+                            String name = (String) json.get("title");
+                            showDialog(output, name);
+                        } else {
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            ItemNameDialog dialog = new ItemNameDialog(BarcodeScanFragment.this::afterDialogConfirmed,
+                                    BarcodeScanFragment.this::cancelledNameDialog, ItemNameDialog.NEW_ITEM);
+                            dialog.show(fragmentManager, null);
                         }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Snackbar.make(getView(), "Could not find a name for this code",
-                        Snackbar.LENGTH_SHORT).show();
-            }
-        });
+                }, error -> Snackbar.make(getView(), "Could not find a name for this code",
+                        Snackbar.LENGTH_SHORT).show());
 
         queue.add(stringRequest);
     }
@@ -198,7 +178,7 @@ public class BarcodeScanFragment extends Fragment {
                         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                         .build();
 
-                imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzer(this::afterAnalysis));;
+                imageAnalysis.setAnalyzer(cameraExecutor, new BarcodeAnalyzer(this::afterAnalysis));
 
                 CameraSelector cameraSelector = new CameraSelector.Builder()
                         .requireLensFacing(CameraSelector.LENS_FACING_BACK)

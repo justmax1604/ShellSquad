@@ -63,7 +63,6 @@ public class DateScanFragment extends Fragment {
 
     private ImageCapture imageCapture;
     private Button captureButton;
-    private Button manualButton;
     private ProgressBar circularProgress;
 
     private boolean mViewingPicture;
@@ -100,7 +99,7 @@ public class DateScanFragment extends Fragment {
         mImageView = getView().findViewById(R.id.imageView);
         circularProgress = getView().findViewById(R.id.progress_circular);
 
-        manualButton = getView().findViewById(R.id.manual_entry);
+        Button manualButton = getView().findViewById(R.id.manual_entry);
         manualButton.setOnClickListener((View v) -> {
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             DateDialog newFragment = new DateDialog(this::dateDialogReturned, this::dateDialogCancelled);
@@ -175,9 +174,7 @@ public class DateScanFragment extends Fragment {
                                         new MaterialAlertDialogBuilder(getContext())
                                                 .setTitle("Found Date")
                                                 .setMessage("The date " + DateValidatorUsingDateFormat.FormatDate(resultingDates.get(0)) + " was found.\n Is this correct?")
-                                                .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> {
-                                                    toConfirmationScreen(resultingDates.get(0));
-                                                })
+                                                .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> toConfirmationScreen(resultingDates.get(0)))
                                                 .setNegativeButton("NO", (DialogInterface dialogI, int i) -> {
 
                                                 })
@@ -190,9 +187,7 @@ public class DateScanFragment extends Fragment {
                                 .addOnFailureListener((Exception e) -> {
 
                                 })
-                                .addOnCompleteListener((Task<Text> visionText) -> {
-                                   imageProxy.close();
-                                });
+                                .addOnCompleteListener((Task<Text> visionText) -> imageProxy.close());
 
                     }
                 }
@@ -221,12 +216,8 @@ public class DateScanFragment extends Fragment {
                 .setNeutralButton("Cancel", ((dialogInterface, i) -> {
 
                 }))
-                .setPositiveButton("Submit", ((dialogInterface, i) -> {
-                    toConfirmationScreen(selectedDate);
-                }))
-                .setSingleChoiceItems(dateStrings, 0, ((dialogInterface, i) -> {
-                    selectedDate = dateList.get(i);
-                }))
+                .setPositiveButton("Submit", ((dialogInterface, i) -> toConfirmationScreen(selectedDate)))
+                .setSingleChoiceItems(dateStrings, 0, ((dialogInterface, i) -> selectedDate = dateList.get(i)))
                 .show();
     }
 

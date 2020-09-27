@@ -3,8 +3,6 @@ package app.example.shellhacks;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.Menu;
-import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -51,14 +49,11 @@ public class SplashScreen extends AppCompatActivity {
             {
                 /* New Handler to start the Menu-Activity
                  * and close this Splash-Screen after some seconds.*/
-                new Handler().postDelayed(new Runnable(){
-                    @Override
-                    public void run() {
+                new Handler().postDelayed(()-> {
                         /* Create an Intent that will start the Menu-Activity. */
                         startActivity(new Intent(SplashScreen.this, SignIn.class));
                         finish();
 
-                    }
                 }, SPLASH_DISPLAY_LENGTH);
             }
             public void onAnimationRepeat(Animation animation) {}

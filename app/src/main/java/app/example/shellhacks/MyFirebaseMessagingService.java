@@ -27,11 +27,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (dataBase.getInstance().getUserDocument() == null)
             return;
         dataBase.getInstance().getUserDocument().set(regToken, SetOptions.merge())
-                .addOnSuccessListener((aVoid) -> {
-                    Log.d(TAG, "Successfully updated registrationToken");
-                })
-                .addOnFailureListener((e) -> {
-                    Log.d(TAG, "Error updating document", e);
-                });
+                .addOnSuccessListener((aVoid) -> Log.d(TAG, "Successfully updated registrationToken"))
+                .addOnFailureListener((e) -> Log.d(TAG, "Error updating document", e));
     }
 }

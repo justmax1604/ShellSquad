@@ -41,9 +41,7 @@ public class SignIn extends AppCompatActivity{
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        signInButton.setOnClickListener((v) -> {
-            signIn();
-        });
+        signInButton.setOnClickListener((v) -> signIn());
     }
 
     private void signIn() {
@@ -72,7 +70,7 @@ public class SignIn extends AppCompatActivity{
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
-                        Log.w("Notificaitons", "getInstanceId failed", task.getException());
+                        Log.w("Notifications", "getInstanceId failed", task.getException());
                         return;
                     }
 
