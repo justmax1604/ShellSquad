@@ -61,9 +61,12 @@ public class DateValidatorUsingDateFormat {
 
     public Date fixYear(Date date) {
         Date currDate = new Date();
-        if (date.before(new Date())) {
+        if (date.before(currDate)) {
             if (currDate.getMonth() > date.getMonth()) {
                 date.setYear(currDate.getYear() + 1);
+            }
+            else {
+                date.setYear(currDate.getYear());
             }
         }
 

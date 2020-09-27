@@ -1,8 +1,11 @@
 package app.example.shellhacks;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
+import android.transition.Slide;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,7 +49,8 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
         floatingAddButton = findViewById(R.id.floatingAddButton);
         floatingAddButton.setOnClickListener((v) -> {
             Intent intent = new Intent(this, BarcodeScan.class);
-            startActivity(intent);
+            Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(this).toBundle();
+            startActivity(intent, bundle);
         });
 
     }

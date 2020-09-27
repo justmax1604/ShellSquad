@@ -39,6 +39,8 @@ public class DateDialog extends DialogFragment {
         CalendarView calendarView = view.findViewById(R.id.calendarView);
         calendarView.setMinDate(new Date().getTime());
 
+        date = new Date();
+
         calendarView.setOnDateChangeListener((calendarView1, year, month, day) -> {
             date = new Date(year - 1900, month, day);
         });
