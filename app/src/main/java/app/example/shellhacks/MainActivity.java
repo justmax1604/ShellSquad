@@ -1,8 +1,21 @@
 package app.example.shellhacks;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -13,6 +26,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -22,6 +36,9 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements EditDialog.EditItemDialogListener {
 
     List<String> items;
+
+    Button btnAdd;
+    EditText edItem;
     RecyclerView rvItems;
     ItemsAdapter itemsAdapter;
     FloatingActionButton floatingAddButton;
@@ -29,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
     String userIdInFireStore = "user_id";
 
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference collectionReference = db.collection("userItems");
 
     public static final String KEY_ITEM_NAME = "item_name";
     public static final String KEY_EXP_DATE = "expiration_date";
@@ -40,14 +58,36 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().setStatusBarColor(Color.TRANSPARENT);
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
+        btnAdd = findViewById(R.id.btnAdd);
+        edItem = findViewById(R.id.edItem);
+
 
         setUpRecyclerView();
 
-        floatingAddButton = findViewById(R.id.floatingAddButton);
-        floatingAddButton.setOnClickListener((v) -> {
-            Intent intent = new Intent(this, BarcodeScan.class);
-            startActivity(intent);
+        btnAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // Add item to the model
+                saveFoodItem();
+
+            }
         });
+
+    }
+
+    private void saveFoodItem() {
+        String fooditemwithdate = edItem.getText().toString().trim();
+        String[] fooditems = fooditemwithdate.split(",", 0);
+        collectionReference.add(new FoodItem(fooditems[0],fooditems[1]));
+        edItem.getText().clear();
+        Toast.makeText(getApplicationContext(), "Item was added", Toast.LENGTH_SHORT).show();
+
 
     }
 

@@ -5,7 +5,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     android:layout_marginHorizontal="4dp"
-    android:layout_marginVertical="4dp">
+    android:layout_marginVertical="4dp"
+    android:background="@drawable/border">
+
 
     <ImageView
         android:id="@+id/ivFooditem"
@@ -21,19 +23,23 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_toEndOf="@+id/ivFooditem"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-        android:textStyle="bold"
+        android:textSize="18sp"
         tools:text="Milk Fairlife" />
 
     <TextView
         android:id="@+id/tvDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="85dp"
+        android:layout_height="25dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_marginTop="23dp"
-        android:layout_marginEnd="11dp"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        android:textStyle="italic"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_toEndOf="@+id/ivFooditem"
+        android:fontFamily="sans-serif"
+
+        android:paddingLeft="250dp"
+        android:textSize="18sp"
         tools:text="10/12/2020" />
 </RelativeLayout>
