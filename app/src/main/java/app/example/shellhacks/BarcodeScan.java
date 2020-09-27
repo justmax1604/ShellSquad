@@ -17,8 +17,7 @@ public class BarcodeScan extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, BarcodeScanFragment.newInstance())
-                    .addToBackStack(BACK_STACK_ROOT_TAG)
-                    .commit();
+                    .commitNow();
         }
     }
 }
