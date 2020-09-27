@@ -1,22 +1,27 @@
 package app.example.shellhacks.ui.main;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
-import java.util.Locale;
+import java.util.Objects;
 
+import app.example.shellhacks.BarcodeScan;
 import app.example.shellhacks.DateValidatorUsingDateFormat;
+import app.example.shellhacks.FoodItem;
+import app.example.shellhacks.MainActivity;
 import app.example.shellhacks.R;
+import app.example.shellhacks.dataBase;
 
 public class ConfirmationFragment extends Fragment {
 
@@ -39,11 +44,20 @@ public class ConfirmationFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        TextView itemNameView = getView().findViewById(R.id.confirm_name_label);
+        TextView itemNameView = Objects.requireNonNull(getView()).findViewById(R.id.confirm_name_label);
         TextView expDateView = getView().findViewById(R.id.confirm_date_label);
 
         itemNameView.setText(getString(R.string.confirm_item_name, itemName));
         expDateView.setText(getString(R.string.confirm_exp_date, DateValidatorUsingDateFormat.FormatDate(expirationDate)));
 
+        Button confirmButton = getView().findViewById(R.id.confirmNewItem);
+        confirmButton.setOnClickListener((v) -> {
+            dataBase.getInstance().getUserItems().add(new FoodItem(itemName, expirationDate));
+            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+            fragmentManager.popBackStack(BarcodeScan.BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+            Intent intent = new Intent(getActivity(), MainActivity.class);
+            startActivity(intent);
+        });
     }
 }
