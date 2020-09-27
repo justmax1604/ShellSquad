@@ -12,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import java.util.Date;
 import java.util.Objects;
@@ -53,11 +52,6 @@ public class ConfirmationFragment extends Fragment {
         Button confirmButton = getView().findViewById(R.id.confirmNewItem);
         confirmButton.setOnClickListener((v) -> {
             dataBase.getInstance().getUserItems().add(new FoodItem(itemName, expirationDate));
-            /*FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
-            int count = fragmentManager.getBackStackEntryCount();
-            for (int i = 0; i < count; i++) {
-                fragmentManager.popBackStack();
-            }*/
 
             Intent intent = new Intent(getActivity(), MainActivity.class);
             Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle();

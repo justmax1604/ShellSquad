@@ -22,24 +22,26 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:layout_toEndOf="@+id/ivFooditem"
         android:textSize="18sp"
-        tools:text="Milk Fairlife" />
+        tools:text="Milk Fairlife"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"/>
 
     <TextView
         android:id="@+id/tvDate"
-        android:layout_width="85dp"
-        android:layout_height="25dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentRight="false"
         android:layout_centerVertical="true"
-        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
-        android:layout_toEndOf="@+id/ivFooditem"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:fontFamily="sans-serif"
-
         android:paddingLeft="250dp"
         android:textSize="18sp"
-        tools:text="10/12/2020" />
+        tools:text="10/12/2020"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"/>
 </RelativeLayout>

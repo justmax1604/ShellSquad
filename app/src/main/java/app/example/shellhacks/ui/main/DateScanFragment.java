@@ -2,10 +2,8 @@ package app.example.shellhacks.ui.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -19,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,14 +42,10 @@ import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
-import com.google.type.DateTime;
 
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -69,6 +64,8 @@ public class DateScanFragment extends Fragment {
     private ImageCapture imageCapture;
     private Button captureButton;
     private Button manualButton;
+    private ProgressBar circularProgress;
+
     private boolean mViewingPicture;
     private List<Date> scanResults;
 
@@ -101,6 +98,7 @@ public class DateScanFragment extends Fragment {
         mPreviewView = getView().findViewById(R.id.view_finder);
         captureButton = getView().findViewById(R.id.scanDateButton);
         mImageView = getView().findViewById(R.id.imageView);
+        circularProgress = getView().findViewById(R.id.progress_circular);
 
         manualButton = getView().findViewById(R.id.manual_entry);
         manualButton.setOnClickListener((View v) -> {
@@ -120,6 +118,7 @@ public class DateScanFragment extends Fragment {
             mViewingPicture = true;
             captureButton.setText("RETAKE");
             mPreviewView.setVisibility(PreviewView.INVISIBLE);
+            circularProgress.setVisibility(ProgressBar.VISIBLE);
 
             imageCapture.takePicture(cameraExecutor, new ImageCapture.OnImageCapturedCallback() {
                 @Override
@@ -168,6 +167,7 @@ public class DateScanFragment extends Fragment {
 
                                     mImageView.setImageBitmap(overlay);
                                     mImageView.setVisibility(ImageView.VISIBLE);
+                                    circularProgress.setVisibility(ProgressBar.INVISIBLE);
 
                                     if (resultingDates.size() == 0) {
                                         Snackbar.make(getView(), "Could not find a valid date in image", Snackbar.LENGTH_SHORT).show();

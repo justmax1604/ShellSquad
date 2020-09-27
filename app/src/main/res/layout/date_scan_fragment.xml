@@ -66,6 +66,17 @@
         app:layout_constraintRight_toRightOf="@id/view_finder"
         app:layout_constraintTop_toTopOf="@id/view_finder" />
 
+    <ProgressBar
+        android:id="@+id/progress_circular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/view_finder"
+        app:layout_constraintTop_toTopOf="@id/view_finder"
+        app:layout_constraintRight_toRightOf="@id/view_finder"
+        app:layout_constraintLeft_toLeftOf="@id/view_finder"
+        android:indeterminate="true"
+        android:visibility="invisible"/>
+
     <Button
         android:id="@+id/scanDateButton"
         android:layout_width="wrap_content"
