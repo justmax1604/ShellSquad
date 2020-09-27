@@ -3,7 +3,6 @@ package app.example.shellhacks.ui.main;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.media.Image;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
@@ -13,6 +12,7 @@ import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,9 +27,18 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -58,33 +67,36 @@ public class BarcodeScanFragment extends Fragment {
         return inflater.inflate(R.layout.barcode_scan_fragment, container, false);
     }
 
-    public void afterAnalysis(String output) {
-        if (mCodeFound)
-            return;
+    private void afterDialogConfirmed(String name) {
+        goToDateScanner(name);
+    }
 
-        mCodeFound = true;
-        if (Build.VERSION.SDK_INT >= 26) {
-            ((Vibrator) getActivity().getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
-        }
+    private void goToDateScanner(String name) {
+        cameraExecutor.shutdown();
+
+        Fragment fragment = new DateScanFragment(name);
+        FragmentManager fManager = getActivity().getSupportFragmentManager();
+        fManager.beginTransaction()
+                .setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.fade_out,
+                        R.anim.fade_in,
+                        R.anim.slide_out)
+                .replace(R.id.container, fragment)
+                .addToBackStack(null)
+                .commit();
+    }
+
+    private void cancelledNameDialog(String name) {
+        mCodeFound = false;
+    }
+
+    private void showDialog(String barcode, String name) {
         new MaterialAlertDialogBuilder(getContext())
-                .setTitle("Barcode Found!")
-                .setMessage("The barcode " + output + " was found.\n Is this correct?")
+                .setTitle("Item Found!")
+                .setMessage("The barcode " + barcode + " was matched to " + name + ".\n Is this correct?")
                 .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> {
-                    cameraExecutor.shutdown();
-
-                    Fragment fragment = new DateScanFragment(output);
-                    FragmentManager fManager = getActivity().getSupportFragmentManager();
-                    fManager.beginTransaction()
-                            .setCustomAnimations(
-                                    R.anim.slide_in,
-                                    R.anim.fade_out,
-                                    R.anim.fade_in,
-                                    R.anim.slide_out
-                            )
-                            .addSharedElement(getView().findViewById(R.id.title), "newItemTitle")
-                            .replace(R.id.container, fragment)
-                            .addToBackStack(null)
-                            .commit();
+                    goToDateScanner(name);
                 })
                 .setNegativeButton("NO", (DialogInterface dialogInterface, int i) -> {
                     mCodeFound = false;
@@ -95,7 +107,57 @@ public class BarcodeScanFragment extends Fragment {
                         mCodeFound = false;
                     }
                 })
-        .show();
+                .show();
+    }
+
+    private void getName(String barcode) {
+
+    }
+
+    public void afterAnalysis(String output) {
+        if (mCodeFound)
+            return;
+
+        mCodeFound = true;
+        if (Build.VERSION.SDK_INT >= 26) {
+            ((Vibrator) getActivity().getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+        }
+
+
+        final String apiKey = "8EA440995629B1CE67019A179E63AA8E";
+        String url = "https://api.upcdatabase.org/product/" + output + "?apikey=" + apiKey;
+
+        RequestQueue queue = Volley.newRequestQueue(getContext());
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.d("API", response);
+                        try {
+                            JSONObject json = new JSONObject(response);
+                            boolean success = (boolean)json.get("success");
+                            if (success) {
+                                String name = (String) json.get("title");
+                                showDialog(output, name);
+                            } else {
+                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                ItemNameDialog dialog = new ItemNameDialog(BarcodeScanFragment.this::afterDialogConfirmed,
+                                        BarcodeScanFragment.this::cancelledNameDialog, ItemNameDialog.NEW_ITEM);
+                                dialog.show(fragmentManager, null);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Snackbar.make(getView(), "Could not find a name for this code",
+                        Snackbar.LENGTH_SHORT).show();
+            }
+        });
+
+        queue.add(stringRequest);
     }
 
     @Override
@@ -103,6 +165,13 @@ public class BarcodeScanFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
 
         mPreviewView = getView().findViewById(R.id.view_finder);
+
+        Button manualButton = getView().findViewById(R.id.manualButton);
+        manualButton.setOnClickListener((View v) -> {
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            ItemNameDialog dialog = new ItemNameDialog(this::afterDialogConfirmed, this::afterDialogConfirmed, ItemNameDialog.MANUAL);
+            dialog.show(fragmentManager, null);
+        });
 
         if (allPermissionsGranted()) {
             startCamera();
