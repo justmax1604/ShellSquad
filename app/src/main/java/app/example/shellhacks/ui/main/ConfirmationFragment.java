@@ -16,7 +16,6 @@ import androidx.fragment.app.FragmentManager;
 import java.util.Date;
 import java.util.Objects;
 
-import app.example.shellhacks.BarcodeScan;
 import app.example.shellhacks.DateValidatorUsingDateFormat;
 import app.example.shellhacks.FoodItem;
 import app.example.shellhacks.MainActivity;
@@ -54,7 +53,10 @@ public class ConfirmationFragment extends Fragment {
         confirmButton.setOnClickListener((v) -> {
             dataBase.getInstance().getUserItems().add(new FoodItem(itemName, expirationDate));
             FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
-            fragmentManager.popBackStack(BarcodeScan.BACK_STACK_ROOT_TAG, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            int count = fragmentManager.getBackStackEntryCount();
+            for (int i = 0; i < count; i++) {
+                fragmentManager.popBackStack();
+            }
 
             Intent intent = new Intent(getActivity(), MainActivity.class);
             startActivity(intent);

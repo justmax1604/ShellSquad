@@ -3,8 +3,6 @@ package app.example.shellhacks;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -24,9 +22,6 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements EditDialog.EditItemDialogListener {
 
     List<String> items;
-
-    Button btnAdd;
-    EditText edItem;
     RecyclerView rvItems;
     ItemsAdapter itemsAdapter;
     FloatingActionButton floatingAddButton;
@@ -44,9 +39,6 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        btnAdd = findViewById(R.id.btnAdd);
-        edItem = findViewById(R.id.edItem);
 
 
         setUpRecyclerView();
