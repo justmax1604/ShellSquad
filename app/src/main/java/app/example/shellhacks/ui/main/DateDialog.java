@@ -20,6 +20,8 @@ public class DateDialog extends DialogFragment {
     private DateDialogCallback onCancel;
     private DateDialogCallback onConfirm;
 
+    private Date date;
+
     public DateDialog(DateDialogCallback onConfirm, DateDialogCallback onCancel) {
         super();
         this.onCancel = onCancel;
@@ -37,12 +39,16 @@ public class DateDialog extends DialogFragment {
         CalendarView calendarView = view.findViewById(R.id.calendarView);
         calendarView.setMinDate(new Date().getTime());
 
+        calendarView.setOnDateChangeListener((calendarView1, year, month, day) -> {
+            date = new Date(year - 1900, month, day);
+        });
+
         confirmButton.setOnClickListener((View v) -> {
-            onConfirm.onCompleted(calendarView.getDate());
+            onConfirm.onCompleted(date);
             this.dismiss();
         });
         cancelButton.setOnClickListener((View v) -> {
-            onCancel.onCompleted(calendarView.getDate());
+            onCancel.onCompleted(date);
             this.dismiss();
         });
 

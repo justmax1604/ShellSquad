@@ -124,7 +124,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        /***
         floatingAddButton = (FloatingActionButton)findViewById(R.id.floatingAddButton);
         floatingAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,7 +133,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        ***/
     }
 
     private void saveFoodItem() {
