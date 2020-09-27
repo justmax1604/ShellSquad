@@ -11,4 +11,12 @@
     <string name="confirm_instructions">Is this information correct for the item you want to add?</string>
     <string name="confirm_item_name">Item Name: %1$s</string>
     <string name="confirm_exp_date">Expiration Date: %1$s</string>
+    <string name="name_dialog_title">Enter Item Name</string>
+    <string name="name_dialog_instructions">Enter the name you would like to appear for this item.</string>
+    <string name="name_dialog_input_label">Item Name</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="scan">Scan</string>
+    <string name="manual">Manual Entry</string>
+    <string name="image_view_description">Shows where we detect there are words</string>
 </resources>

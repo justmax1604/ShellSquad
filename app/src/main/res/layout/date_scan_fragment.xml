@@ -55,22 +55,23 @@
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView"
+        android:contentDescription="@string/image_view_description"
         android:visibility="visible"
         app:layout_constrainedHeight="true"
         app:layout_constraintBottom_toBottomOf="@id/view_finder"
         app:layout_constraintLeft_toLeftOf="@id/view_finder"
         app:layout_constraintRight_toRightOf="@id/view_finder"
-        app:layout_constraintTop_toTopOf="@id/view_finder"/>
+        app:layout_constraintTop_toTopOf="@id/view_finder" />
 
     <Button
         android:id="@+id/scanDateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Scan"
+        android:text="@string/scan"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_finder" />
@@ -80,7 +81,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Manual Entry"
+        android:text="@string/manual"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/scanDateButton" />
