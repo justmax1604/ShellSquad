@@ -2,7 +2,10 @@ package app.example.shellhacks.ui.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -33,19 +36,27 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
+import com.google.type.DateTime;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import app.example.shellhacks.DateValidatorUsingDateFormat;
 import app.example.shellhacks.R;
 
 public class DateScanFragment extends Fragment {
@@ -59,6 +70,9 @@ public class DateScanFragment extends Fragment {
     private Button captureButton;
     private Button manualButton;
     private boolean mViewingPicture;
+    private List<Date> scanResults;
+
+    private Date selectedDate;
 
     private String barcode;
 
@@ -70,19 +84,13 @@ public class DateScanFragment extends Fragment {
         return inflater.inflate(R.layout.date_scan_fragment, container, false);
     }
 
-    public void dateDialogReturned(long date) {
-        Date date_obj = new Date(date);
-        Log.d("Date Returned: ", date_obj.toLocaleString());
+    public void dateDialogReturned(Date date) {
 
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, new ConfirmationFragment(barcode, date_obj))
-                .addToBackStack(null)
-                .commit();
+        toConfirmationScreen(date);
 
     }
 
-    public void dateDialogCancelled(long date) {
+    public void dateDialogCancelled(Date date) {
 
     }
 
@@ -135,18 +143,48 @@ public class DateScanFragment extends Fragment {
 
                                     Canvas canvas = new Canvas(overlay);
 
+                                    List<Date> resultingDates = new ArrayList<>();
+                                    DateValidatorUsingDateFormat validator = new DateValidatorUsingDateFormat();
+
                                     for (Text.TextBlock block : visionText.getTextBlocks()) {
                                         for (Text.Line line : block.getLines()) {
+
+                                            Date lineDate = validator.getParsedDate(line.getText());
+                                            if (lineDate != null) {
+                                                resultingDates.add(validator.fixYear(lineDate));
+                                            }
+
                                             for (Text.Element element : line.getElements()) {
                                                 Rect rect = element.getBoundingBox();
                                                 canvas.drawRect(rect, paint);
                                                 Log.d("String Found", element.getText());
+                                                Date possibleDate = validator.getParsedDate(element.getText());
+                                                if (possibleDate != null) {
+                                                    resultingDates.add(validator.fixYear(possibleDate));
+                                                }
                                             }
                                         }
                                     }
 
                                     mImageView.setImageBitmap(overlay);
                                     mImageView.setVisibility(ImageView.VISIBLE);
+
+                                    if (resultingDates.size() == 0) {
+                                        Snackbar.make(getView(), "Could not find a valid date in image", Snackbar.LENGTH_SHORT).show();
+                                    } else if (resultingDates.size() == 1) {
+                                        new MaterialAlertDialogBuilder(getContext())
+                                                .setTitle("Found Date")
+                                                .setMessage("The date " + DateValidatorUsingDateFormat.FormatDate(resultingDates.get(0)) + " was found.\n Is this correct?")
+                                                .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> {
+                                                    toConfirmationScreen(resultingDates.get(0));
+                                                })
+                                                .setNegativeButton("NO", (DialogInterface dialogI, int i) -> {
+
+                                                })
+                                                .show();
+                                    } else {
+                                        openMultipleDateDialog(resultingDates);
+                                    }
 
                                 })
                                 .addOnFailureListener((Exception e) -> {
@@ -168,8 +206,36 @@ public class DateScanFragment extends Fragment {
         }
     }
 
-    private void toConfirmationScreen(Date expDate) {
+    private void openMultipleDateDialog(List<Date> dateList) {
 
+        String[] dateStrings = new String[dateList.size()];
+
+        for (int i = 0; i < dateList.size(); i++) {
+            dateStrings[i] = DateValidatorUsingDateFormat.FormatDate(dateList.get(i));
+        }
+
+        selectedDate = dateList.get(0);
+
+        new MaterialAlertDialogBuilder(getContext())
+                .setTitle("Select Date")
+                .setNeutralButton("Cancel", ((dialogInterface, i) -> {
+
+                }))
+                .setPositiveButton("Submit", ((dialogInterface, i) -> {
+                    toConfirmationScreen(selectedDate);
+                }))
+                .setSingleChoiceItems(dateStrings, 0, ((dialogInterface, i) -> {
+                    selectedDate = dateList.get(i);
+                }))
+                .show();
+    }
+
+    private void toConfirmationScreen(Date expDate) {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, new ConfirmationFragment(barcode, expDate))
+                .addToBackStack(null)
+                .commit();
     }
 
     private void startCamera() {

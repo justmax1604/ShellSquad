@@ -4,7 +4,10 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.media.Image;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
@@ -36,6 +39,8 @@ import java.util.concurrent.Executors;
 import app.example.shellhacks.BarcodeAnalyzer;
 import app.example.shellhacks.R;
 
+import static android.content.Context.VIBRATOR_SERVICE;
+
 public class BarcodeScanFragment extends Fragment {
 
 
@@ -58,12 +63,13 @@ public class BarcodeScanFragment extends Fragment {
             return;
 
         mCodeFound = true;
+        if (Build.VERSION.SDK_INT >= 26) {
+            ((Vibrator) getActivity().getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+        }
         new MaterialAlertDialogBuilder(getContext())
                 .setTitle("Barcode Found!")
                 .setMessage("The barcode " + output + " was found.\n Is this correct?")
                 .setPositiveButton("YES", (DialogInterface dialogInterface, int i) -> {
-                    Snackbar.make(getView(), "The barcode has been selected", Snackbar.LENGTH_LONG)
-                        .show();
                     cameraExecutor.shutdown();
 
                     Fragment fragment = new DateScanFragment(output);

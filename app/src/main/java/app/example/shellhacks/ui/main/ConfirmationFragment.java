@@ -10,9 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 
+import app.example.shellhacks.DateValidatorUsingDateFormat;
 import app.example.shellhacks.R;
 
 public class ConfirmationFragment extends Fragment {
@@ -29,7 +32,7 @@ public class ConfirmationFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.item_confirm_fragment, container);
+        return inflater.inflate(R.layout.item_confirm_fragment, container, false);
     }
 
     @Override
@@ -39,10 +42,8 @@ public class ConfirmationFragment extends Fragment {
         TextView itemNameView = getView().findViewById(R.id.confirm_name_label);
         TextView expDateView = getView().findViewById(R.id.confirm_date_label);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-
         itemNameView.setText(getString(R.string.confirm_item_name, itemName));
-        expDateView.setText(getString(R.string.confirm_exp_date, formatter.format(expirationDate.toInstant())));
+        expDateView.setText(getString(R.string.confirm_exp_date, DateValidatorUsingDateFormat.FormatDate(expirationDate)));
 
     }
 }
