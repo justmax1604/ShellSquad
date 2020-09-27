@@ -20,7 +20,7 @@ public class DateDialog extends DialogFragment {
     private DateDialogCallback onCancel;
     private DateDialogCallback onConfirm;
 
-    public DateDialog(DateDialogCallback onCancel, DateDialogCallback onConfirm) {
+    public DateDialog(DateDialogCallback onConfirm, DateDialogCallback onCancel) {
         super();
         this.onCancel = onCancel;
         this.onConfirm = onConfirm;

@@ -40,6 +40,7 @@ import com.google.mlkit.vision.text.Text;
 import com.google.mlkit.vision.text.TextRecognition;
 import com.google.mlkit.vision.text.TextRecognizer;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -70,6 +71,14 @@ public class DateScanFragment extends Fragment {
     }
 
     public void dateDialogReturned(long date) {
+        Date date_obj = new Date(date);
+        Log.d("Date Returned: ", date_obj.toLocaleString());
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.container, new ConfirmationFragment(barcode, date_obj))
+                .addToBackStack(null)
+                .commit();
 
     }
 
@@ -157,6 +166,10 @@ public class DateScanFragment extends Fragment {
         } else {
             requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_PERM);
         }
+    }
+
+    private void toConfirmationScreen(Date expDate) {
+
     }
 
     private void startCamera() {
