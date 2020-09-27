@@ -5,14 +5,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.DocumentSnapshot;
+
 public class FoodItemAdapter extends FirestoreRecyclerAdapter<FoodItem,FoodItemAdapter.FoodItemHolder> {
 
+    private onItemClickListener listener;
 
     public FoodItemAdapter(@NonNull FirestoreRecyclerOptions<FoodItem> options) {
         super(options);
@@ -21,7 +23,7 @@ public class FoodItemAdapter extends FirestoreRecyclerAdapter<FoodItem,FoodItemA
     @Override
     protected void onBindViewHolder(@NonNull FoodItemHolder holder, int position, @NonNull FoodItem model) {
         holder.itemName.setText(model.getItem_name());
-        holder.itemDate.setText(model.getExpiration_date());
+        holder.itemDate.setText(DateValidatorUsingDateFormat.FormatDate(model.getExpiration_date()));
         //holder.imagePath.setImageIcon(R.drawable.ic_launcher_foreground);
 
     }
@@ -48,9 +50,23 @@ public class FoodItemAdapter extends FirestoreRecyclerAdapter<FoodItem,FoodItemA
             itemDate = itemView.findViewById(R.id.tvDate);
             //imagePath = itemView.findViewById(R.id.ivFooditem);
 
+            itemView.setOnClickListener((v) -> {
+                int position = getAdapterPosition();
+                if ((position != RecyclerView.NO_POSITION) && (listener != null)){
+
+                    listener.onItemClick(getSnapshots().getSnapshot(position), position);
+
+                }
+            });
         }
     }
 
+    public interface onItemClickListener {
+        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+    }
 
+    public void setOnItemClickListener(onItemClickListener listener){
+        this.listener = listener;
+    }
 
 }

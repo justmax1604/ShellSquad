@@ -10,7 +10,6 @@
 
         <ImageView
             android:id="@+id/splashImage"
-            id="@+id/splashscreen"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

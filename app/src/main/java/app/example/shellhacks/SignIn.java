@@ -3,7 +3,6 @@ package app.example.shellhacks;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +13,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -38,11 +36,8 @@ public class SignIn extends AppCompatActivity{
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                signIn();
-            }
+        signInButton.setOnClickListener((v) -> {
+            signIn();
         });
     }
 
@@ -64,14 +59,19 @@ public class SignIn extends AppCompatActivity{
         }
     }
 
+    private void setupDatabase(String id) {
+        userData.getInstance().userId = id;
+        dataBase.getInstance().setDb(FirebaseFirestore.getInstance());
+        dataBase.getInstance().setUserDocument(FirebaseFirestore.getInstance().collection("users").document(id));
+        dataBase.getInstance().setUserItems(dataBase.getInstance().getUserDocument().collection("userItems"));
+    }
+
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
             Log.d("SignIn", "Singed In successfully");
             Log.d("SignIn", "firebaseAuthWithGoogle:" + account.getId());
-            userData.getInstance().userId = account.getId();
-            dataBase.getInstance().db = FirebaseFirestore.getInstance();
-            dataBase.getInstance().userItems = dataBase.getInstance().db.collection(firebaseUserItemsCollectionName);
+            setupDatabase(account.getId());
             // Signed in successfully, show authenticated UI.
             startActivity(new Intent(SignIn.this, MainActivity.class));
         } catch (ApiException e) {
@@ -88,11 +88,9 @@ public class SignIn extends AppCompatActivity{
         // the GoogleSignInAccount will be non-null.
 
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account != null) {
+        if (account != null) {
             Log.d("SignIn", "firebaseAuthWithGoogle:" + account.getId()); // 108768014883478741352
-            userData.getInstance().userId = account.getId();
-            dataBase.getInstance().db = FirebaseFirestore.getInstance();
-            dataBase.getInstance().userItems = dataBase.getInstance().db.collection(firebaseUserItemsCollectionName);
+            setupDatabase(account.getId());
             startActivity(new Intent(SignIn.this, MainActivity.class));
             super.onStart();
         }
