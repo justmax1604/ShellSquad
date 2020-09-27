@@ -1,5 +1,6 @@
 package app.example.shellhacks.ui.main;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -52,14 +53,15 @@ public class ConfirmationFragment extends Fragment {
         Button confirmButton = getView().findViewById(R.id.confirmNewItem);
         confirmButton.setOnClickListener((v) -> {
             dataBase.getInstance().getUserItems().add(new FoodItem(itemName, expirationDate));
-            FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
+            /*FragmentManager fragmentManager = Objects.requireNonNull(getActivity()).getSupportFragmentManager();
             int count = fragmentManager.getBackStackEntryCount();
             for (int i = 0; i < count; i++) {
                 fragmentManager.popBackStack();
-            }
+            }*/
 
             Intent intent = new Intent(getActivity(), MainActivity.class);
-            startActivity(intent);
+            Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle();
+            startActivity(intent, bundle);
         });
     }
 }

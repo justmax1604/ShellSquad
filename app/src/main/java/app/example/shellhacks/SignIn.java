@@ -15,6 +15,11 @@ import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignIn extends AppCompatActivity{
     SignInButton signInButton;
@@ -64,6 +69,31 @@ public class SignIn extends AppCompatActivity{
         dataBase.getInstance().setDb(FirebaseFirestore.getInstance());
         dataBase.getInstance().setUserDocument(FirebaseFirestore.getInstance().collection("users").document(id));
         dataBase.getInstance().setUserItems(dataBase.getInstance().getUserDocument().collection("userItems"));
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful()) {
+                        Log.w("Notificaitons", "getInstanceId failed", task.getException());
+                        return;
+                    }
+
+                    String token = task.getResult().getToken();
+                    Log.d("RegToken", token);
+                    sendRegistrationTokenToStorage(token);
+
+                });
+    }
+
+    private void sendRegistrationTokenToStorage(String token) {
+        Map<String, String> regToken = new HashMap<>();
+        regToken.put("registrationToken", token);
+        dataBase.getInstance().getUserDocument().set(regToken, SetOptions.merge())
+            .addOnCompleteListener((aVoid) -> {
+                if (aVoid.isSuccessful()) {
+                    Log.d("RegToken", "Submitted token");
+                } else {
+                    Log.w("RegToken", "Error submitting token");
+                }
+            });
     }
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
