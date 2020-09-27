@@ -3,6 +3,7 @@ package app.example.shellhacks.ui.main;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;

@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "827297379631-d4ulia0rvq3f392dnj9am46s78m02lf0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.example.shellhacks",
+            "certificate_hash": "0f326bd94ad8386027738cebd4f60b1333915a92"
+          }
+        },
+        {
+          "client_id": "827297379631-mmar0uq5j8aie5fpsbkvem5tci40qknr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "app.example.shellhacks",
+            "certificate_hash": "820a7b1e703eb71ce0c1f2a3982355eba1f69457"
+          }
+        },
+        {
           "client_id": "827297379631-2f6rm2cmhchivb5hmqqja45l2lq6m7eu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

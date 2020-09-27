@@ -1,21 +1,22 @@
 package app.example.shellhacks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class FoodItem {
 
-    String itemName;
-    String itemDate;
-    String imagePath;
+    private String item_name;
+    private String expiration_date;
+    //private String imagePath;
 
-    /***TODO get the data model for itemslist
-    public FoodItem (***) {
-        itemName = ;
-        itemDate  = ;
-        imagePath = ;
+    public FoodItem (){
+        //empty constructor
     }
 
+    public FoodItem (String itemName, String itemDate) {
+        this.item_name = itemName;
+        this.expiration_date = itemDate;
+        //this.imagePath = imagePath;
+    }
+
+    /***
     public static List<FoodItem> fromJsonArray (***){
         List<FoodItem> items = new ArrayList<>();
         for (int i = 0; i<; i++){
@@ -25,17 +26,17 @@ public class FoodItem {
         return movies;
     }
     ***/
+
+    public String getItem_name() {
+        return item_name;
+    }
+
+    public String getExpiration_date() {
+        return expiration_date;
+    }
     /***
-    public String getItemName() {
-        return itemName;
-    }
-
-    public String getItemDate() {
-        return itemDate;
-    }
-
     public String getImagePath() {
         return imagePath;
     }
-     ***/
+    ***/
 }
