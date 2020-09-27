@@ -5,19 +5,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SignIn">
+    tools:context=".SignIn"
+    >
 
 <!--<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/signin"
     android:layout_width="match_parent"
     android:layout_height="match_parent">-->
 
+    <ImageView
+        android:id="@+id/imageLogo"
+        id="@+id/imageLogo"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        android:layout_gravity="center"
+        android:contentDescription="TODO"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:src="@drawable/meliora_named" />
+
     <com.google.android.gms.common.SignInButton
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" />
+        android:layout_marginVertical="600dp"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:drawable="@android:drawable/dialog_holo_light_frame"
+        android:minWidth="200dp" />
 
     <!--</androidx.constraintlayout.widget.ConstraintLayout>-->
 </RelativeLayout>
