@@ -3,6 +3,7 @@ package app.example.shellhacks;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,8 +16,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApiNotAvailableException;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -33,7 +39,7 @@ import java.util.List;
 import app.example.shellhacks.ui.main.BarcodeScanFragment;
 import app.example.shellhacks.ui.main.CameraFragment;
 
-public class MainActivity extends AppCompatActivity implements EditDialog.EditItemDialogListener {
+public class MainActivity extends AppCompatActivity {
 
     List<String> items;
 
@@ -45,6 +51,11 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
     String TAG = "MainActivity";
     String userIdInFireStore = "user_id";
 
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference collectionReference = db.collection("userItems");
+
+    private FoodItemAdapter foodItemAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +63,10 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
 
         btnAdd = findViewById(R.id.btnAdd);
         edItem = findViewById(R.id.edItem);
-        rvItems = findViewById(R.id.rvItems);
 
+
+        setUpRecyclerView();
+        /***
         dataBase.getInstance().userItems
                 .whereEqualTo(userIdInFireStore, userData.getInstance().userId)
                 .get()
@@ -101,20 +114,17 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
         rvItems.setAdapter(itemsAdapter);
         rvItems.setLayoutManager(new LinearLayoutManager(this));
 
+        ***/
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String todoItem = edItem.getText().toString();
+
                 // Add item to the model
-                items.add(todoItem);
-                // Notify an adapter that the items is inserted
-                itemsAdapter.notifyItemInserted(items.size() -1);
-                edItem.setText("");
-                Toast.makeText(getApplicationContext(), "Item was added", Toast.LENGTH_SHORT).show();
-                saveItems();
+                saveFoodItem();
+
             }
         });
-
+        /***
         floatingAddButton = (FloatingActionButton)findViewById(R.id.floatingAddButton);
         floatingAddButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,9 +134,58 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
             }
         });
 
+        ***/
+    }
+
+    private void saveFoodItem() {
+        String fooditemwithdate = edItem.getText().toString().trim();
+        String[] fooditems = fooditemwithdate.split(",", 0);
+        collectionReference.add(new FoodItem(fooditems[0],fooditems[1]));
+        edItem.getText().clear();
+        Toast.makeText(getApplicationContext(), "Item was added", Toast.LENGTH_SHORT).show();
 
     }
 
+    private void setUpRecyclerView() {
+        Query query = collectionReference.orderBy("item_name", Query.Direction.DESCENDING);
+        FirestoreRecyclerOptions<FoodItem> options = new FirestoreRecyclerOptions.Builder<FoodItem>()
+                .setQuery(query,FoodItem.class)
+                .build();
+
+        foodItemAdapter = new FoodItemAdapter(options);
+        RecyclerView rvItems = findViewById(R.id.rvItems);
+        rvItems.setHasFixedSize(true);
+
+        rvItems.setLayoutManager(new LinearLayoutManager(this));
+        rvItems.setAdapter(foodItemAdapter);
+
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                foodItemAdapter.deleteItem(viewHolder.getAdapterPosition());
+
+            }
+        }).attachToRecyclerView(rvItems);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        foodItemAdapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        foodItemAdapter.stopListening();
+    }
+    /***
     private File getDataFile() {
         return new File(getFilesDir(), "data.txt");
     }
@@ -161,4 +220,5 @@ public class MainActivity extends AppCompatActivity implements EditDialog.EditIt
         saveItems();
         Toast.makeText(getApplicationContext(), "Item updated successfully", Toast.LENGTH_SHORT ).show();
     }
+    ***/
 }

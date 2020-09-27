@@ -4,4 +4,11 @@
     <string name="barcode_page_title">Scan Barcode</string>
     <string name="barcode_instructions">Begin by scanning the barcode of your item. If your item does not have a barcode press manual.</string>
     <string name="camera_permissions_denied">Cannot automatically scan item without the camera</string>
+    <string name="date_page_title">Scan Expiration Date</string>
+    <string name="date_page_instructions">Now scan the expiration date on the new item. If it cannot be detected click manual.</string>
+    <string name="manual_date_title">Select an Expiration Date</string>
+    <string name="confirm_title">Confirm Your Entry</string>
+    <string name="confirm_instructions">Is this information correct for the item you want to add?</string>
+    <string name="confirm_item_name">Item Name: %1$s</string>
+    <string name="confirm_exp_date">Expiration Date: %1$s</string>
 </resources>

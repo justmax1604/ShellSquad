@@ -5,7 +5,7 @@
     android:id="@+id/barcode_scan"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.main.BarcodeScanFragment">
+    tools:context=".ui.main.DateScanFragment">
 
     <TextView
         android:id="@+id/title"
@@ -15,9 +15,9 @@
         android:layout_marginTop="40dp"
         android:text="@string/add_item_title"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
-        android:transitionName="newItemTitle"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:transitionName="newItemTitle"/>
 
     <TextView
         android:id="@+id/textView2"
@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="8dp"
-        android:text="@string/barcode_page_title"
+        android:text="@string/date_page_title"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
@@ -37,7 +37,7 @@
         android:layout_marginStart="32dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="32dp"
-        android:text="@string/barcode_instructions"
+        android:text="@string/date_page_instructions"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Body1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,15 +54,34 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView3" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView"
+        android:visibility="visible"
+        app:layout_constrainedHeight="true"
+        app:layout_constraintBottom_toBottomOf="@id/view_finder"
+        app:layout_constraintLeft_toLeftOf="@id/view_finder"
+        app:layout_constraintRight_toRightOf="@id/view_finder"
+        app:layout_constraintTop_toTopOf="@id/view_finder"/>
+
     <Button
-        android:id="@+id/button"
+        android:id="@+id/scanDateButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:backgroundTint="?attr/colorSecondary"
         android:text="Scan"
-        android:textColor="#000000"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_finder" />
+
+    <Button
+        android:id="@+id/manual_entry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Manual Entry"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scanDateButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>
